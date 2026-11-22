@@ -1,7 +1,8 @@
 {
-  "version": 8,
+  "version": 9,
   "name": "arr",
   "nixpkgs": "nixos-unstable",
+  "icon": "sonarr",
   "routes": [
     {
       "host": "sonarr",
@@ -217,5 +218,35 @@
       "qbittorrent.service",
       "qui.service"
     ]
-  }
+  },
+  "services": [
+    {
+      "unit": "sonarr.service",
+      "icon": "sonarr"
+    },
+    {
+      "unit": "radarr.service",
+      "icon": "radarr"
+    },
+    {
+      "unit": "prowlarr.service",
+      "icon": "prowlarr"
+    },
+    {
+      "unit": "postgresql.service",
+      "icon": "postgresql"
+    },
+    {
+      "unit": "vpn.service",
+      "icon": "wireguard"
+    },
+    {
+      "unit": "qbittorrent.service",
+      "icon": "qbittorrent"
+    },
+    {
+      "unit": "qui.service",
+      "icon": "qui"
+    }
+  ]
 }
