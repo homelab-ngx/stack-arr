@@ -1,0 +1,221 @@
+{
+  "version": 8,
+  "name": "arr",
+  "nixpkgs": "nixos-unstable",
+  "routes": [
+    {
+      "host": "sonarr",
+      "port": 8989
+    },
+    {
+      "host": "radarr",
+      "port": 7878
+    },
+    {
+      "host": "prowlarr",
+      "port": 9696
+    },
+    {
+      "host": "qui",
+      "port": 7476
+    }
+  ],
+  "variables": [
+    {
+      "name": "MEDIA_DIR",
+      "kind": "path",
+      "description": "The media tree: the TV and movie libraries and qBittorrent's downloads (qbittorrent/ in it). Its group becomes the stack's media group, which every app uses.",
+      "required": true,
+      "mount": "/pool/media",
+      "group": "media"
+    },
+    {
+      "name": "VPN_PRIVATE_KEY",
+      "kind": "secret",
+      "description": "The WireGuard private key from your VPN provider's config (its PrivateKey line).",
+      "required": true
+    },
+    {
+      "name": "VPN_ADDRESS",
+      "kind": "env",
+      "description": "The tunnel address from the provider's config (Address), such as 10.2.0.2/32.",
+      "required": true
+    },
+    {
+      "name": "VPN_DNS",
+      "kind": "env",
+      "description": "The DNS server inside the tunnel (DNS in the provider's config), such as 10.2.0.1.",
+      "required": true
+    },
+    {
+      "name": "VPN_PEER_PUBLIC_KEY",
+      "kind": "env",
+      "description": "The server's public key (PublicKey under [Peer]).",
+      "required": true
+    },
+    {
+      "name": "VPN_ENDPOINT",
+      "kind": "env",
+      "description": "The server's address and port (Endpoint under [Peer]), such as 203.0.113.7:51820.",
+      "required": true
+    },
+    {
+      "name": "VPN_NATPMP_GATEWAY",
+      "kind": "env",
+      "description": "For a provider with NAT-PMP port forwarding (ProtonVPN: 10.2.0.1): the gateway to ask. The forwarded port is given to qBittorrent. Unset: no port forwarding.",
+      "required": false
+    },
+    {
+      "name": "QUI_SESSION_SECRET",
+      "kind": "secret",
+      "description": "Signs qui's sessions. Any random string, such as one from openssl rand -hex 32.",
+      "required": true
+    }
+  ],
+  "backup": {
+    "prepare": "postgresqlBackup.service",
+    "folders": [
+      {
+        "label": "Database dumps",
+        "path": "/var/backup/postgresql"
+      },
+      {
+        "label": "Sonarr settings",
+        "path": "/var/lib/sonarr",
+        "exclude": [
+          {
+            "pattern": "/MediaCover/**",
+            "reason": "Cover images. They download again."
+          },
+          {
+            "pattern": "/Backups/**",
+            "reason": "The app's own backups. The database dumps cover them."
+          },
+          {
+            "pattern": "/logs/**",
+            "reason": "Log files."
+          },
+          {
+            "pattern": "/logs.db*",
+            "reason": "The log database."
+          },
+          {
+            "pattern": "/.cache/**",
+            "reason": "Temporary files."
+          },
+          {
+            "pattern": "/Sentry/**",
+            "reason": "Crash reports."
+          },
+          {
+            "pattern": "/*.db",
+            "reason": "A SQLite database from before Postgres. The database dumps hold the current data."
+          }
+        ]
+      },
+      {
+        "label": "Radarr settings",
+        "path": "/var/lib/radarr",
+        "exclude": [
+          {
+            "pattern": "/MediaCover/**",
+            "reason": "Cover images. They download again."
+          },
+          {
+            "pattern": "/Backups/**",
+            "reason": "The app's own backups. The database dumps cover them."
+          },
+          {
+            "pattern": "/logs/**",
+            "reason": "Log files."
+          },
+          {
+            "pattern": "/logs.db*",
+            "reason": "The log database."
+          },
+          {
+            "pattern": "/.cache/**",
+            "reason": "Temporary files."
+          },
+          {
+            "pattern": "/Sentry/**",
+            "reason": "Crash reports."
+          },
+          {
+            "pattern": "/*.db",
+            "reason": "A SQLite database from before Postgres. The database dumps hold the current data."
+          }
+        ]
+      },
+      {
+        "label": "Prowlarr settings",
+        "path": "/var/lib/prowlarr",
+        "exclude": [
+          {
+            "pattern": "/MediaCover/**",
+            "reason": "Cover images. They download again."
+          },
+          {
+            "pattern": "/Backups/**",
+            "reason": "The app's own backups. The database dumps cover them."
+          },
+          {
+            "pattern": "/logs/**",
+            "reason": "Log files."
+          },
+          {
+            "pattern": "/logs.db*",
+            "reason": "The log database."
+          },
+          {
+            "pattern": "/.cache/**",
+            "reason": "Temporary files."
+          },
+          {
+            "pattern": "/Sentry/**",
+            "reason": "Crash reports."
+          },
+          {
+            "pattern": "/*.db",
+            "reason": "A SQLite database from before Postgres. The database dumps hold the current data."
+          },
+          {
+            "pattern": "/Definitions/**",
+            "reason": "Indexer definitions. They download again."
+          }
+        ]
+      },
+      {
+        "label": "qBittorrent settings",
+        "path": "/var/lib/qbittorrent",
+        "exclude": [
+          {
+            "pattern": "/qBittorrent/cache/**",
+            "reason": "Temporary files."
+          }
+        ]
+      },
+      {
+        "label": "qui settings",
+        "path": "/var/lib/qui",
+        "exclude": [
+          {
+            "pattern": "/tracker-icons/**",
+            "reason": "Tracker icons. They download again."
+          }
+        ]
+      }
+    ]
+  },
+  "health": {
+    "units": [
+      "sonarr.service",
+      "radarr.service",
+      "prowlarr.service",
+      "postgresql.service",
+      "vpn.service",
+      "qbittorrent.service",
+      "qui.service"
+    ]
+  }
+}
