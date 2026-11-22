@@ -34,7 +34,10 @@ in
   services.sonarr = {
     enable = true;
     dataDir = "/var/lib/sonarr";
-    settings = settings "sonarr";
+    # nixpkgs ships Sonarr v5, which upstream releases on its develop branch.
+    # Left on main, Sonarr's servers tell v5 to switch. nixpkgs still does the
+    # updating: the module turns Sonarr's own updater off.
+    settings = lib.recursiveUpdate (settings "sonarr") { update.branch = "develop"; };
   };
   services.radarr = {
     enable = true;
